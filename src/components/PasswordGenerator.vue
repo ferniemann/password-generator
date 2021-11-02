@@ -9,26 +9,29 @@
   </div>
 <form class="options" id="options" onsubmit="return false" @input="generatePassword()">
   <div class="character-set">
-    <div class="lowercase">
-      <input type="checkbox" name="characters" id="pw-lowercase" checked>
-      <label for="pw-lowercase" class="char-category">Lowercase</label>
-    </div>
-    <div class="uppercase">
-      <input type="checkbox" name="characters" id="pw-uppercase">
-      <label for="pw-uppercase" class="char-category">Uppercase</label>
-    </div>
-    <div class="numbers">
-      <input type="checkbox" name="characters" id="pw-numbers">
-      <label for="pw-numbers" class="char-category">Numbers</label>
-    </div>
-    <div class="special">
-      <input type="checkbox" name="characters" id="pw-symbols">
-      <label for="pw-symbols" class="char-category">Symbols</label>
+    <p>Choose your character set:</p>
+    <div class="container">
+      <div class="lowercase">
+        <input type="checkbox" name="characters" id="pw-lowercase" checked>
+        <label for="pw-lowercase" class="char-category">Lowercase</label>
+      </div>
+      <div class="uppercase">
+        <input type="checkbox" name="characters" id="pw-uppercase">
+        <label for="pw-uppercase" class="char-category">Uppercase</label>
+      </div>
+      <div class="numbers">
+        <input type="checkbox" name="characters" id="pw-numbers">
+        <label for="pw-numbers" class="char-category">Numbers</label>
+      </div>
+      <div class="special">
+        <input type="checkbox" name="characters" id="pw-symbols">
+        <label for="pw-symbols" class="char-category">Symbols</label>
+      </div>
     </div>
   </div>
   <div class="slider">
     <label for="pw-length">Password Length:</label><br>
-    <input type="range" name="" id="pw-length" :value="value" min="8" max="35" step="1" @input="updateValue()">
+    <input type="range" name="" class="pw-length-slider" id="pw-length" :value="value" min="8" max="35" step="1" @input="updateValue()">
     <label for="pw-length" class="slider-value">{{ value }}</label>
   </div>
 </form>
@@ -56,13 +59,16 @@ export default {
     },
 
     generatePassword() {
-      let length = this.value
-      let charSet = ""
-      this.generatedPassword = ""
       const addLowercase = document.getElementById("pw-lowercase")
       const addUppercase = document.getElementById("pw-uppercase")
       const addNumbers = document.getElementById("pw-numbers")
       const addSymbols = document.getElementById("pw-symbols")
+
+      let length = this.value
+      let charSet = ""
+      this.generatedPassword = ""
+
+      this.preventNoChecked()
 
       if (addLowercase.checked) {
         charSet += this.lowercaseCharacters
@@ -131,6 +137,22 @@ export default {
       setTimeout(function () {
         successMessage.style.opacity = "0"
       }, 3500)
+    },
+
+    preventNoChecked() {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']")
+      const lowercase = document.getElementById("pw-lowercase")
+      let uncheckedCount = 0
+
+      checkboxes.forEach(checkbox => {
+        if (!checkbox.checked) {
+          uncheckedCount++
+        }
+      })
+
+      if (uncheckedCount === 4) {
+        lowercase.checked = true
+      }
     }
   },
 
@@ -143,11 +165,16 @@ export default {
 <style scoped>
   .character-set {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
     gap: 2rem;
-    margin: 2rem 0;
+    margin: 1rem 0 2rem 0;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .character-set input[type="checkbox"] {
@@ -176,14 +203,19 @@ export default {
     width: 2rem;
   }
 
+  .pw-length-slider {
+    width: 80%;
+    max-width: 20rem;
+  }
+
   .result {
-    margin: 2rem auto;
-    height: 30vh;
+    margin: 2rem auto 4rem auto;
+    height: 20vh;
   }
 
   .result p:first-of-type {
     background: rgba(255 255 255 / .1);
-    padding: .5rem 1rem;
+    padding: 1rem;
     border-radius: .1rem;
     word-wrap: break-word;
     margin: 1rem 0;
@@ -201,7 +233,7 @@ export default {
     background-color: var(--color-success);
     font-size: .75rem;
     color: var(--color-dark);
-    width: 70vw;
+    width: 60%;
     margin: auto;
     margin-top: 1rem;
     padding: .25rem;

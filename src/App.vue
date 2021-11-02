@@ -41,6 +41,8 @@ export default {
     background: var(--color-dark);
     color: var(--color-light);
     padding: .5rem;
+    max-width: 800px;
+    margin: auto;
   }
 
   .title {
@@ -56,6 +58,7 @@ export default {
 
   button {
     cursor: pointer;
+    font-family: inherit;
   }
 
   input[type="range"] {
