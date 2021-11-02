@@ -1,4 +1,12 @@
 <template>
+  <div class="result">
+    <p id="generated-password">{{ generatedPassword }}</p>
+    <button @click="copyPassword()">
+      <i class="fas fa-clipboard"></i>
+      Copy to Clipboard
+    </button>
+    <p class="success" id="success">Password was succesfully copied to your clipboard!</p>
+  </div>
 <form class="options" id="options" onsubmit="return false" @input="generatePassword()">
   <div class="character-set">
     <div class="lowercase">
@@ -24,14 +32,6 @@
     <label for="pw-length" class="slider-value">{{ value }}</label>
   </div>
 </form>
-  <div class="result">
-    <p id="generated-password">{{ generatedPassword }}</p>
-    <button @click="copyPassword()">
-      <i class="fas fa-clipboard"></i>
-      Copy to Clipboard
-    </button>
-    <p class="success" id="success">Password was succesfully copied to your clipboard!</p>
-  </div>
 </template>
 
 <script>
@@ -45,7 +45,7 @@ export default {
       lowercaseCharacters: "abcdefghijklmnopqrstuvwxyz",
       uppercaseCharacters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       numbers: "0123456789",
-      symbols: "!§$%&/()=?¡¢[]|{}"
+      symbols: "!§,;.:-_#+*~§$%&?<>°^"
     }
   },
 
@@ -57,32 +57,67 @@ export default {
 
     generatePassword() {
       let length = this.value
-      let charTypes = "a-z"
-      let charArray = charTypes.split(",")
       let charSet = ""
       this.generatedPassword = ""
+      const addLowercase = document.getElementById("pw-lowercase")
       const addUppercase = document.getElementById("pw-uppercase")
       const addNumbers = document.getElementById("pw-numbers")
       const addSymbols = document.getElementById("pw-symbols")
 
-      if (charArray.indexOf("a-z") >= 0) {
-        charSet += "abcdefghijklmnopqrstuvwxyz"
+      if (addLowercase.checked) {
+        charSet += this.lowercaseCharacters
+      } else if (!addLowercase.checked) {
+        charSet = charSet.replace(this.lowercaseCharacters, "")
       }
 
       if (addUppercase.checked) {
-        charTypes = charTypes.concat(",A-Z")
-        console.log(charTypes)
+        charSet += this.uppercaseCharacters
       } else if (!addUppercase.checked) {
-        charTypes = charTypes.replace(",A-Z", "")
-        console.log(charTypes)
+        charSet = charSet.replace(this.uppercaseCharacters, "")
       }
 
       if (addNumbers.checked) {
-        charTypes = charTypes.concat(",0-9")
+        charSet += this.numbers
+      } else if (!addNumbers.checked) {
+        charSet = charSet.replace(this.numbers, "")
+      }
+
+      if (addSymbols.checked) {
+        charSet += this.symbols
+      } else if (!addSymbols.checked) {
+        charSet = charSet.replace(this.symbols, "")
       }
 
       for (let i = 0; i < length; i++) {
         this.generatedPassword += charSet.charAt(Math.floor(Math.random() * charSet.length))
+      }
+
+      if (addNumbers.checked) {
+        const expNumbers = new RegExp("[0-9]")
+        if (!this.generatedPassword.match(expNumbers)) {
+          this.generatePassword()
+        }
+      } 
+
+      if (addUppercase.checked) {
+        const expUppercase = new RegExp("[A-Z]")
+        if (!this.generatedPassword.match(expUppercase)) {
+          this.generatePassword()
+        }
+      } 
+      
+      if (addLowercase.checked) {
+        const expLowercase = new RegExp("[a-z]")
+        if (!this.generatedPassword.match(expLowercase)) {
+          this.generatePassword()
+        } 
+        
+        if (addSymbols.checked) {
+          const expSymbols = new RegExp("[!|§|,|;|.|:|-|_|#|+|*|~|§|$|%|&|?|<|>|°|^]")
+          if (!this.generatedPassword.match(expSymbols)) {
+            this.generatePassword()
+          }
+        }
       }
 
       return this.generatedPassword
@@ -92,9 +127,9 @@ export default {
       const successMessage = document.getElementById("success")
       let password = document.getElementById("generated-password").innerText
       navigator.clipboard.writeText(password)
-      successMessage.style.visibility = "visible"
+      successMessage.style.opacity = "1"
       setTimeout(function () {
-        successMessage.style.visibility = "hidden"
+        successMessage.style.opacity = "0"
       }, 3500)
     }
   },
@@ -142,7 +177,8 @@ export default {
   }
 
   .result {
-    margin: 2rem 0;
+    margin: 2rem auto;
+    height: 30vh;
   }
 
   .result p:first-of-type {
@@ -154,6 +190,7 @@ export default {
   }
 
   button {
+    font-size: 1rem;
     background-color: var(--color-secondary);
     border: none;
     padding: .25rem .5rem;
@@ -162,14 +199,16 @@ export default {
 
   .success {
     background-color: var(--color-success);
-    display: inline-block;
     font-size: .75rem;
     color: var(--color-dark);
     width: 70vw;
+    margin: auto;
     margin-top: 1rem;
     padding: .25rem;
     border-radius: .2rem;
-    visibility: hidden;
-    transition: visibility 1s;
+    opacity: 0;
+    transition: opacity .5s;
+    cursor: default;
+    pointer-events: none;
   }
 </style>
